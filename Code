@@ -1,75 +1,41 @@
-#pragma region VEXcode Generated Robot Configuration
-// Make sure all required headers are included.
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <math.h>
-#include <string.h>
-
-
-#include "vex.h"
-
-using namespace vex;
-
-// Brain should be defined by default
-brain Brain;
-
-
-// START V5 MACROS
-#define waitUntil(condition)                                                   \
-  do {                                                                         \
-    wait(5, msec);                                                             \
-  } while (!(condition))
-
-#define repeat(iterations)                                                     \
-  for (int iterator = 0; iterator < iterations; iterator++)
-// END V5 MACROS
-
-
-// Robot configuration code.
-motor leftFlywheelMotor = motor(PORT1, ratio6_1, false);
-
-motor rightFlywheelMotor = motor(PORT2, ratio6_1, true);
-
-rotation leftFlywheelEncoder = rotation(PORT10, false);
-
-rotation rightFlywheelEncoder = rotation(PORT11, true);
-
-controller Controller1 = controller(primary);
-digital_out pPusher = digital_out(Brain.ThreeWirePort.A);
-
-// define variable for remote controller enable/disable
-bool RemoteControlCodeEnabled = true;
-
-
-
-
-#pragma endregion VEXcode Generated Robot Configuration
-
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
-/*    Author:       {author}                                                  */
-/*    Created:      {date}                                                    */
+/*    Author:       C:\Users\blarhe8849                                       */
+/*    Created:      Mon May 23 2022                                           */
 /*    Description:  V5 project                                                */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
-#include "vex.h"
-#include <iostream> 
+// ---- START VEXCODE CONFIGURED DEVICES ----
+// Robot Configuration:
+// [Name]               [Type]        [Port(s)]
+// leftFlywheelMotor    motor         5               
+// rightFlywheelMotor   motor         2               
+// leftFlywheelEncoder  rotation      11              
+// rightFlywheelEncoder rotation      12              
+// pPusher              digital_out   A               
+// Controller1          controller                    
+// ---- END VEXCODE CONFIGURED DEVICES ----
 
-int leftFlywheelRPM = 600; //Defines the Inital and Fastest Speed of the Left Flywheel Motor
-int rightFlywheelRPM = 600; //Defines the Inital and Fastest Speed of the Left Flywheel Motor
+#include "vex.h"
+#include <iostream>
+#include <fstream>
+std::ofstream test ("test.h");
+
+
+int leftFlywheelRPM = 200; //Defines the Inital and Fastest Speed of the Left Flywheel Motor
+int rightFlywheelRPM = 200; //Defines the Inital and Fastest Speed of the Left Flywheel Motor
 int x = 0; // Defines the Row of the Array that will be Printed to
-int timePassed = 0; //Defines the time passed in milliseconds, Counts up by ten each time RPMValue Runs
-int RPMValues[1000000][3]; //Defines the RPMValues array at a larger than neccesary size
+int timePassed = 0;//Defines the time passed in milliseconds, Counts up by ten each time RPMValue Runs
+uint32_t RPMValues[1000000][3]; //Defines the RPMValues array at a larger than neccesary size
 
 using namespace vex;
 
 void RPMValue(){
   int trueLeftFlywheelRPM = leftFlywheelEncoder.velocity(rpm); //Reads the speed of the left flywheel at the axle of the Flywheel
   int trueRightFlywheelSpeed = rightFlywheelEncoder.velocity(rpm); //Reads the speed of the right flywheel at the axle of the Flywheel
-  RPMValues [x][0] = timePassed; //Writes the time passed to the first column of the array
+  RPMValues [x][0]= timePassed; //Writes the time passed to the first column of the array
   RPMValues [x][1] = trueLeftFlywheelRPM; //Writes the left flywheel speed to the second column of the array
   RPMValues [x][2] = trueRightFlywheelSpeed; // Writes the right flywheel speed to the third column of the array
   x++; //moves to the next row of the array
@@ -95,7 +61,7 @@ while (true){
     rightFlywheelMotor.stop();
   }
   if(Controller1.ButtonL1.pressing()){ //Increases the left Flywheel by 50 RPM when L1 is pressed on the controller
-    if(leftFlywheelRPM < 600){
+    if(leftFlywheelRPM < 200){
       leftFlywheelRPM += 50;
     }
     leftFlywheelMotor.setVelocity(leftFlywheelRPM, rpm);
@@ -107,7 +73,7 @@ while (true){
     leftFlywheelMotor.setVelocity(leftFlywheelRPM,rpm);
 }
 if(Controller1.ButtonR1.pressing()){ //Increases the Right Flywheel speed by 50 RPM when R1 is pressed on the controller
-    if(rightFlywheelRPM < 600){
+    if(rightFlywheelRPM < 200){
       rightFlywheelRPM += 50;
     }
     rightFlywheelMotor.setVelocity(rightFlywheelRPM, rpm);
@@ -118,16 +84,21 @@ if(Controller1.ButtonR1.pressing()){ //Increases the Right Flywheel speed by 50 
     }
     rightFlywheelMotor.setVelocity(rightFlywheelRPM,rpm);
 }
-Controller1.Screen.print("Left Flywheel Speed: "); //Defines what value is shown
-Controller1.Screen.print(leftFlywheelEncoder.velocity(rpm)); //Prints the Speed of the Left Flywheel on the controller Screen
-Controller1.Screen.newLine(); // Adds a new line on the controller screen
-Controller1.Screen.print("Rights Flywheel Speed: "); //Defines what value is shown
-Controller1.Screen.print(rightFlywheelEncoder.velocity(rpm)); //Prints the Speed of the Right Flywheel on the controller Screen
+Brain.Screen.print("Left Flywheel Speed: "); //Defines what value is shown
+Brain.Screen.print(leftFlywheelEncoder.velocity(rpm)); //Prints the Speed of the Left Flywheel on the controller Screen
+Brain.Screen.newLine(); // Adds a new line on the controller screen
+Brain.Screen.print("Rights Flywheel Speed: "); //Defines what value is shown
+Brain.Screen.print(rightFlywheelEncoder.velocity(rpm)); //Prints the Speed of the Right Flywheel on the controller Screen
+Brain.Screen.newLine();
 RPMValue(); //Runs the RPMValue function
+if(Controller1.ButtonX.pressing()){
+  break;
+}
 }
 for (int i=0; i <= x; ++i){ //prints the RPMValues array
-  std::cout<< RPMValues[i][0]; // Writes out Time Passed Values
-  std::cout<< RPMValues[i][1]; // Writes out Left Flywheel Speed Values
-  std::cout<< RPMValues[i][2]; // Writes out Right Flywheel Speed Values
+  test<< RPMValues[i][0]; // Writes out Time Passed Values
+  test<< RPMValues[i][1]; // Writes out Left Flywheel Speed Values
+  test<< RPMValues[i][2]; // Writes out Right Flywheel Speed Values
 }
+Brain.SDcard.savefile("test.h", );
 }
